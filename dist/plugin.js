@@ -17,7 +17,7 @@ const cheerio = require("cheerio");
 const axios = require("axios");
 const erela_js_1 = require("erela.js");
 const axios_1 = __importDefault(require("axios"));
-const appleMusicPlaylist = require("apple-music-playlist");
+
 const REGEXTRACK = /(http(s|):\/\/music\.apple\.com\/..\/.....\/.*\/([0-9]){1,})\?i=([0-9]){1,}/gmi
 const REGEX = /(?:https:\/\/music\.apple\.com\/)(?:\w{2}\/)?(track|album|playlist)/g;
 const buildSearch = (loadType, tracks, error, name) => ({
@@ -37,13 +37,13 @@ const buildSearch = (loadType, tracks, error, name) => ({
 const check = (options) => {
     if (typeof options.convertUnresolved !== "undefined" &&
         typeof options.convertUnresolved !== "boolean")
-        throw new TypeError('Deezer option "convertUnresolved" must be a boolean.');
+        throw new TypeError('AppleMusic option "convertUnresolved" must be a boolean.');
     if (typeof options.playlistLimit !== "undefined" &&
         typeof options.playlistLimit !== "number")
-        throw new TypeError('Deezer option "playlistLimit" must be a number.');
+        throw new TypeError('AppleMusic option "playlistLimit" must be a number.');
     if (typeof options.albumLimit !== "undefined" &&
         typeof options.albumLimit !== "number")
-        throw new TypeError('Deezer option "albumLimit" must be a number.');
+        throw new TypeError('AppleMusic option "albumLimit" must be a number.');
 };
 class AppleMusic extends erela_js_1.Plugin {
     constructor(options = {}) {
@@ -64,7 +64,7 @@ class AppleMusic extends erela_js_1.Plugin {
     load(manager) {
         this.manager = manager;
         this._search = manager.search.bind(manager);
-        console.log(manager)
+    
         manager.search = this.search.bind(this);
     }
     search(query, requester) {
@@ -95,7 +95,7 @@ class AppleMusic extends erela_js_1.Plugin {
                     const msg = 'Incorrect type for AppleMusic URL, must be one "track of album","album" or "playlist".';
                     return buildSearch("LOAD_FAILED", null, msg, null);
                 } catch (e) {
-                    console.log('Esto del catch')
+                    
                     return buildSearch((_b = e.loadType) !== null && _b !== void 0 ? _b : "LOAD_FAILED", null, (_c = e.message) !== null && _c !== void 0 ? _c : null, null);
                 };
             };
@@ -144,7 +144,7 @@ class AppleMusic extends erela_js_1.Plugin {
     getPlaylistTracks(url) {
         
         return __awaiter(this, void 0, void 0, function* () {
-            let res = yield appleMusicPlaylist.getPlaylist(url)
+            let res = yield ApplePlayList(url)
             let PlaylistName = Titulo(url)
           
             const tracks = res.map(item => AppleMusic.convertToUnresolved(item));
@@ -238,5 +238,41 @@ function Titulo(title){
  function replaceTexto(texto) {
      let nuevo = texto.replace(/https:\/\//i,'').split('/')[3].replace(/-/g, " ").replace(/%C3%B3/g, "ó").replace(/%C3%A9/g, "é").replace(/%C3%BA/g, "ú").replace(/%C3%AD/g, "í").replace(/%C3%A1/g, "á").replace(/%C3%B1/g, "ñ")
      return nuevo
- }   
+ }  
+ 
+  /**
+     * Get the apple music playlist and returns an array of objects with an album, artist and title property
+     * @param {string} url The url to the apple music playlist
+     * @return {Promise<object[]>} The playlist array
+     */
+   function ApplePlayList(url) {
+    return new Promise((resolve, reject) => {
+        if (!url) {
+            reject(new Error("Playlist url is undefined"));
+        } else {
+            axios.get(url).then(res => {
+                let $ = cheerio.load(res.data),
+                    aTitleDivs = $(".songs-list-row__song-name").toArray(),
+                    aArtistDivs = $(".songs-list-row__link").toArray(),
+                    aPlaylist = [],
+                    i,
+                    j = 0;
+                
+                for (i = 0; i < aTitleDivs.length; i++) {
+                    aPlaylist.push({
+                        uri: aArtistDivs[j].children[1].parent.attribs.href,
+                        album: aArtistDivs[j + 2].firstChild.data,
+                        artist: aArtistDivs[j].children[1].data,
+                        title: `${aTitleDivs[i].children[1].data} ${aArtistDivs[j].children[1].data}`
+                    });
+                    j += 3;
+                }
+
+                resolve(aPlaylist);
+            }).catch(err => {
+                reject(err);
+            });
+        }
+    });
+}
  exports.AppleMusic = AppleMusic;
