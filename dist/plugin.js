@@ -215,7 +215,7 @@ class AppleMusic extends erela_js_1.Plugin {
             title: track.title,
             author: track.artist,
             uri: track.uri,
-            duration: Math.random() * 60 * 10000,
+            duration: getRandom(140, 250) * 1000,
         };
     }
 };
@@ -234,7 +234,9 @@ function Titulo(title){
     }
     return coso
     }
-
+    function getRandom(min, max) {
+        return Math.random() * (max - min) + min;
+      }
  function replaceTexto(texto) {
      let nuevo = texto.replace(/https:\/\//i,'').split('/')[3].replace(/-/g, " ").replace(/%C3%B3/g, "ó").replace(/%C3%A9/g, "é").replace(/%C3%BA/g, "ú").replace(/%C3%AD/g, "í").replace(/%C3%A1/g, "á").replace(/%C3%B1/g, "ñ")
      return nuevo
