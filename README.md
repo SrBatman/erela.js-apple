@@ -12,6 +12,8 @@
 <hr>
 </div>
 Apple Music plugin for Erela.JS
+
+
 ## What is this ?
 This a plugin for Erela.JS to allow the use of AppleMusic URL's, it uses direct URL's being tracks, albums, and playlists and gets the YouTube equivalent.  
 
