@@ -36,7 +36,7 @@ const AppleMusic  = require("erela.js-apple");
 
 const manager = new Manager({
   plugins: [
-    // Initiate the plugin and pass the two required options.
+    // Initiate the plugin 
     new AppleMusic()
   ]
 });
