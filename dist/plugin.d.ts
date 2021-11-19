@@ -12,17 +12,7 @@ export declare class AppleMusic extends Plugin {
     private getTrack;
     private static convertToUnresolved;
 }
-export interface AppleMusicOptions {
-    /** Amount of pages to load, each page having 100 tracks. */
-    playlistLimit?: number;
-    /** Amount of pages to load, each page having 50 tracks. */
-    albumLimit?: number;
-    /**
-     * Whether to convert UnresolvedTracks to Track. Defaults to false.
-     * **Note: This is** ***not*** **recommended as it spams YouTube and takes a while if a large playlist is loaded.**
-     */
-    convertUnresolved?: boolean;
-}
+
 export interface Result {
     tracks: UnresolvedQuery[];
     name?: string;
